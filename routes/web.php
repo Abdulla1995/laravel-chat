@@ -11,8 +11,18 @@
 |
 */
 
+use Illuminate\Support\Facades\Route;
+
 Auth::routes();
 
 Route::get('/', 'ChatsController@index')->name('home');
-Route::get('messages', 'ChatsController@fetchMessage')->name('fetch_message');
-Route::post('messages', 'ChatsController@sendMessage')->name('send_message');
+Route::get('/messages', 'ChatsController@fetchMessages');
+Route::post('/messages', 'ChatsController@storeMessage');
+Route::get('/messages/{id}', 'ChatsController@getMessages');
+
+Route::get('/allusers', 'UsersController@index');
+
+/*Route::get('test', function ()
+{
+    dd('test');
+});*/
