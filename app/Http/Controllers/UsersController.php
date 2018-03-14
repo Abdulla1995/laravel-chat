@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
@@ -18,7 +19,8 @@ class UsersController extends Controller
 
     public function index()
     {
-        $users = DB::table('users')->select('users.id', 'users.name')->get();
+        $users = DB::table('users')->select('users.id', 'users.name')
+            ->where('users.id', '<>', Auth::id())->get();
 
         return $users;
 

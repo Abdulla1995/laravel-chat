@@ -1,5 +1,6 @@
 <template>
     <div>
+        <div class="panel-heading text-primary">Users</div>
         <ul class="list-group">
             <li class="list-group-item"
                 style="cursor: pointer"

@@ -26,34 +26,41 @@ const app = new Vue({
 
     data: {
         messages: [],
-        receiver_id: null
+        receiver_id: null,
+        usersInRoom: null
     },
 
     created() {
-        // this.fetchMessages();
 
-        // Echo.private('chat')
-        //     .listen('MessageSent', (e) => {
-        //         this.messages.push({
-        //             message: e.message.message,
-        //             user: e.user
-        //         });
-        //     });
+        Echo.private('chat')
+            .listen('MessageSent', (e) => {
+                this.messages.push({
+                    message: e.message.message,
+                    name: e.user.name
+                });
+
+            });
+
+        Echo.join('chat')
+            .here((users) =>{
+                this.usersInRoom = users;
+            })
+            .joining()
+            .leaving()
+            .listen('MessageSent', (e) =>{
+                console.log(e)
+            });
+
     },
 
     methods: {
-        // fetchMessages() {
-        //     axios.get('/messages').then(response => {
-        //         this.messages = response.data;
-        //     });
-        // },
 
         sendMessage(message) {
-            console.log(message);
             this.messages.push(message);
-
-            axios.post('/messages', message).then(response => {
-                console.log(response.data);
+            axios.post('/messages', message)
+                .then(response => {
+            }).catch(e => {
+                console.log(e.response);
             });
         },
 

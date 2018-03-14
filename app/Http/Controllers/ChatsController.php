@@ -30,39 +30,41 @@ class ChatsController extends Controller
         $user = Auth::user();
         $currentUserId = Auth::user()->id;
         $receiverId = $request->receiver_id;
-        $conversationId = [];
-        array_push($conversationId, $currentUserId, $receiverId);
 
-        sort($conversationId);
-        $uniqueConversationId = $conversationId[0] . $conversationId[1];
 
-        $user->messages()->create(
+        $message = $user->messages()->create(
             [
                 'message' => $request->input('message'),
                 'receiver_id' => $request->receiver_id,
-                'conversation_id' => $uniqueConversationId
+                'conversation_id' => $this->uniqueConversationId($currentUserId, $receiverId)
             ]
         );
 
-//        broadcast(new MessageSent($user, $message))->toOthers();
+        broadcast(new MessageSent($user, $message))->toOthers();
+
         return ['status' => 'Message Sent!'];
     }
 
     public function getMessages($id)
     {
         $currentUserId = Auth::user()->id;
-        $conversationId = [];
-        array_push($conversationId, $currentUserId, $id);
-        sort($conversationId);
 
-        $uniqueConversationId = $conversationId[0] . $conversationId[1];
         $messages = DB::table('messages', 'desc')
-            ->where('conversation_id', $uniqueConversationId)
+            ->where('conversation_id', $this->uniqueConversationId($currentUserId, $id))
             ->leftJoin('users', 'users.id', '=', 'messages.user_id')
             ->select('messages.*', 'users.name')->get();
         /*$messages = DB::table('messages', 'desc')
             ->where('receiver_id', $id)
             ->where('user_id', Auth::user()->id)->get();*/
         return $messages;
+    }
+
+    public function uniqueConversationId($id1, $id2)
+    {
+        $conversationId = [];
+        array_push($conversationId, $id1, $id2);
+        sort($conversationId);
+        $uniqueId = $conversationId[0] . '@' . $conversationId[1];
+        return $uniqueId;
     }
 }
